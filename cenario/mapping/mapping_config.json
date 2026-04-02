@@ -1,0 +1,65 @@
+{
+    "config": {
+        "fixedOrder": true
+    },
+    "prototypes": [
+        {
+            "name": "Car",
+            "accel": 2.6,
+            "decel": 4.5,
+            "length": 5.00,
+            "maxSpeed": 70.0,
+            "minGap": 2.5,
+            "sigma": 0.5,
+            "speedDeviation": 0.1,
+            "tau": 1
+        }
+    ],
+    "vehicles": [
+        {
+            "startingTime": "1 s",
+            "targetFlow": 6000,
+            "maxNumberVehicles": 400,
+            "route": "2",
+            "lanes": [ 0 ],
+            "types": [
+                {
+                    "name": "Car",
+                    "weight": 100,
+                    "applications": ["org.eclipse.mosaic.app.npr.NprVehicleApp"],
+                    "adHoc": { "maxDistance": 140 } 
+                }
+            ]
+        },
+        {
+            "startingTime": "1.0 s",
+            "targetFlow": 1000,
+            "maxNumberVehicles": 50,
+            "route": "1",
+            "lanes": [ 0 ],
+            "types": [
+                {
+                    "name": "Car",
+                    "weight": 100,
+                    "applications": [ "org.eclipse.mosaic.app.npr.NprVehicleApp" ],
+                    "adHoc": { "maxDistance": 140 }
+                }
+            ]
+        }
+    ],
+    "rsus": [
+        {
+            "name": "rsu_0",
+            "position": {
+                "latitude": 0.49847, 
+                "longitude": -13.193746
+            },
+            "applications": [
+                "org.eclipse.mosaic.app.npr.NprRsuApp"
+            ],
+            "adHoc": {
+                "maxDistance": 140
+            }
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "nodes": [
+        {
+            "nodeType": "Vehicle",
+            "communication": {
+                "maxTransmissionRange": 140.0,
+                "transmissionPower": 20.0
+            }
+        }
+    ]
+}
