@@ -27,7 +27,7 @@ public class NprVehicleApp extends AbstractApplication<VehicleOperatingSystem> i
     private long proximoCamTempo = 0; // Protege o ciclo do CAM contra o Multi-Hop
     
     // Variáveis de Memória e Geocasting
-    private boolean jaDecidiuOQueFazer = false;
+    private int zonaDecidida = 0;      // 0=nenhuma, 1=alerta(500-1000m), 2=aprox.(200-500m), 3=crítica(<200m)
     private boolean decidiuObedecer = false;
     private double ultimaDistancia = -1;
 
@@ -36,7 +36,7 @@ public class NprVehicleApp extends AbstractApplication<VehicleOperatingSystem> i
     private boolean aEsperaDeRetransmitir = false; 
     private long tempoAgendadoParaRetransmitir = 0; 
     private NprDenmMessage mensagemGuardada = null; 
-    private final double RADIO_RANGE = 300.0; // Metros (O R da vossa fórmula)
+    private final double RADIO_RANGE = 140.0; // Metros (O R da vossa fórmula)
     private final long T_MAX_ESPERA = 100000000L; // 100 ms (O T_max da vossa fórmula)
 
     @Override
@@ -91,89 +91,79 @@ public class NprVehicleApp extends AbstractApplication<VehicleOperatingSystem> i
 
             // --- FILTRO 1: TTL (VALIDADE) ---
             if (getOs().getSimulationTime() > denm.getTempoExpiracao()) {
-                return; 
+                return;
             }
 
-            // 1. Cálculo da distância e identificação do emissor
+            // Cálculo da distância e identificação do emissor
             org.eclipse.mosaic.lib.geo.GeoPoint minhaPos = getOs().getNavigationModule().getCurrentPosition();
             org.eclipse.mosaic.lib.geo.GeoPoint emissorPos = msg.getRouting().getSource().getSourcePosition();
             double distancia = minhaPos.distanceTo(emissorPos);
             String nomeEmissor = msg.getRouting().getSource().getSourceName();
 
-            // --- SPRINT 3: LÓGICA DE MULTI-HOP E SUPRESSÃO CORRIGIDA ---
-            
-            // 1. SUPRESSÃO: Se já estou à espera de retransmitir e ouço ALGUÉM a fazê-lo, calo-me!
-            if (aEsperaDeRetransmitir) {
-                aEsperaDeRetransmitir = false;
-                jaRetransmitiu = true; 
-                System.out.println(String.format("%-8s SUPRIMIU envio (ouviu o alerta de %s).", getOs().getId(), nomeEmissor));
-            } 
-            // 2. AGENDAMENTO: Se não estou à espera e ainda não retransmiti, preparo-me para passar a palavra!
-            else if (!jaRetransmitiu) {
-                double d = Math.min(distancia, RADIO_RANGE); 
-                
-                // Fórmula do vosso relatório: T_wait = T_max * (1 - d/R)
-                long tEspera = (long) (T_MAX_ESPERA * (1.0 - (d / RADIO_RANGE))); 
-                tEspera += (long) (getRandom().nextDouble() * 10000000L); // Random delta (0 a 10ms)
-                
-                tempoAgendadoParaRetransmitir = getOs().getSimulationTime() + tEspera;
-                mensagemGuardada = denm;
-                aEsperaDeRetransmitir = true;
-                
-                getOs().getEventManager().addEvent(tempoAgendadoParaRetransmitir, this); // Cria o "Alarme"
-            }
-
             // --- FILTRO 2: GEOCASTING DIRECIONAL ---
+            // (verificado ANTES do multi-hop para não agendar retransmissões desnecessárias)
             if (ultimaDistancia != -1.0 && distancia > ultimaDistancia) {
                 if (decidiuObedecer) {
-                    getOs().changeSpeedWithPleasantAcceleration(33.33); 
+                    getOs().changeSpeedWithPleasantAcceleration(33.33);
                     System.out.println(String.format("%-8s Já passou a obra! Retomando velocidade normal. (Dist: %.1fm)", getOs().getId(), distancia));
-                    decidiuObedecer = false; 
+                    decidiuObedecer = false;
+                    zonaDecidida = 0;
                 }
                 ultimaDistancia = distancia;
-                return; 
+                return;
             }
             ultimaDistancia = distancia;
 
-            // 2. O SORTEIO
-            if (!jaDecidiuOQueFazer && distancia <= 1000.0) {
-                double sorteio = getRandom().nextDouble();
-                double probObedecer = (minhaPersonalidade == Personalidade.COOPERANTE) ? 1.0 :
-                                      (minhaPersonalidade == Personalidade.PADRAO) ? 0.5 :
-                                      (minhaPersonalidade == Personalidade.POUCO_COOPERANTE) ? 0.25 : 0.0;
-
-                decidiuObedecer = (sorteio < probObedecer);
-                jaDecidiuOQueFazer = true; 
+            // --- MULTI-HOP: SUPRESSÃO E AGENDAMENTO DE BACK-OFF ---
+            if (aEsperaDeRetransmitir) {
+                // Supressão: outro nó já retransmitiu, cancelamos o nosso envio
+                aEsperaDeRetransmitir = false;
+                jaRetransmitiu = true;
+                System.out.println(String.format("%-8s SUPRIMIU envio (ouviu o alerta de %s).", getOs().getId(), nomeEmissor));
+            } else if (!jaRetransmitiu) {
+                // Agendamento: calcular T_wait inversamente proporcional à distância
+                double d = Math.min(distancia, RADIO_RANGE);
+                long tEspera = (long) (T_MAX_ESPERA * (1.0 - (d / RADIO_RANGE)));
+                tEspera += (long) (getRandom().nextDouble() * 10000000L); // jitter 0–10 ms
+                tempoAgendadoParaRetransmitir = getOs().getSimulationTime() + tEspera;
+                mensagemGuardada = denm;
+                aEsperaDeRetransmitir = true;
+                getOs().getEventManager().addEvent(tempoAgendadoParaRetransmitir, this);
             }
 
-            // 3. A EXECUÇÃO DO FUNIL
-            if (jaDecidiuOQueFazer && decidiuObedecer) {
-                double velocidadeAlvo;
-                String zona;
+            // --- SORTEIO POR ZONA ---
+            // Determinar em que zona o veículo se encontra
+            int zonaAtual;
+            if      (distancia > 1000) zonaAtual = 0; // sem recomendação
+            else if (distancia > 500)  zonaAtual = 1; // alerta    — 70 km/h
+            else if (distancia > 200)  zonaAtual = 2; // aproximação — 50 km/h
+            else                       zonaAtual = 3; // crítica   — 30 km/h
 
-                if (distancia > 500) {
-                    velocidadeAlvo = 19.44; // 70 km/h
-                    zona = "ZONA ALERTA";
-                } else if (distancia > 200) {
-                    velocidadeAlvo = 13.89; // 50 km/h
-                    zona = "ZONA APROXIMAÇÃO";
-                } else {
-                    velocidadeAlvo = 8.33;  // 30 km/h
-                    zona = "ZONA CRÍTICA";
-                }
+            // Novo sorteio independente ao entrar numa zona mais próxima
+            if (zonaAtual > zonaDecidida) {
+                decidiuObedecer = (getRandom().nextDouble() < getProbabilidade());
+                zonaDecidida = zonaAtual;
+                System.out.println(String.format("%-8s [%-16s] ZONA %d → %s",
+                    getOs().getId(), minhaPersonalidade.name(), zonaAtual,
+                    decidiuObedecer ? "OBEDECE" : "IGNORA"));
+            }
+
+            // --- FUNIL DE VELOCIDADE ---
+            if (decidiuObedecer && zonaAtual > 0) {
+                double velocidadeAlvo = (zonaAtual == 1) ? 19.44 :  // 70 km/h
+                                        (zonaAtual == 2) ? 13.89 :  // 50 km/h
+                                                           8.33;    // 30 km/h
 
                 if (minhaPersonalidade == Personalidade.COOPERANTE) {
                     getOs().changeSpeedWithPleasantAcceleration(velocidadeAlvo);
-                    System.out.println(String.format("%-8s [COOPERANTE] Travagem SUAVE a %.1fm da RSU.", getOs().getId(), distancia));
+                    System.out.println(String.format("%-8s [COOPERANTE] Zona %d → %.0f km/h (SUAVE)", getOs().getId(), zonaAtual, velocidadeAlvo * 3.6));
                 } else if (minhaPersonalidade == Personalidade.PADRAO) {
                     getOs().changeSpeedWithInterval(velocidadeAlvo, 5000000000L);
-                    System.out.println(String.format("%-8s [PADRAO] Travagem NORMAL a %.1fm da RSU.", getOs().getId(), distancia));
+                    System.out.println(String.format("%-8s [PADRAO] Zona %d → %.0f km/h", getOs().getId(), zonaAtual, velocidadeAlvo * 3.6));
                 } else if (minhaPersonalidade == Personalidade.POUCO_COOPERANTE) {
                     getOs().changeSpeedWithInterval(velocidadeAlvo, 2000000000L);
-                    System.out.println(String.format("%-8s [POUCO_COOP] Travagem BRUSCA a %.1fm da RSU!", getOs().getId(), distancia));
+                    System.out.println(String.format("%-8s [POUCO_COOP] Zona %d → %.0f km/h (BRUSCO)", getOs().getId(), zonaAtual, velocidadeAlvo * 3.6));
                 }
-            } else if (jaDecidiuOQueFazer && !decidiuObedecer) {
-                // Se decidiu ignorar (Comentado para não poluir o terminal)
             }
         }
     }
@@ -188,6 +178,15 @@ public class NprVehicleApp extends AbstractApplication<VehicleOperatingSystem> i
     public void onMessageTransmitted(V2xMessageTransmission v2xMessageTransmission) {}
 
     // --- MÉTODOS DE LÓGICA DO CARRO ---
+
+    private double getProbabilidade() {
+        switch (minhaPersonalidade) {
+            case COOPERANTE:       return 1.0;
+            case PADRAO:           return 0.5;
+            case POUCO_COOPERANTE: return 0.25;
+            default:               return 0.0; // NAO_COOPERANTE
+        }
+    }
 
     private void atribuirPersonalidade() {
         double sorteio = getRandom().nextDouble();

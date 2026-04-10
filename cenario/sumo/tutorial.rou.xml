@@ -3,7 +3,7 @@
 
     <vType id="carro_normal" accel="2.6" decel="4.5" length="5.0" maxSpeed="33.3" />
 
-    <route id="1" edges="E0 E2" />
-    <route id="2" edges="E0 E2" />
+    <route id="1" edges="E0 E1 E2" />
+    <route id="2" edges="E0 E1 E2" />
 
     </routes>
