@@ -132,12 +132,11 @@ public class NprVehicleApp extends AbstractApplication<VehicleOperatingSystem> i
             }
 
             // --- SORTEIO POR ZONA ---
-            // Determinar em que zona o veículo se encontra
+            // Determinar em que zona o veículo se encontra (3 zonas)
             int zonaAtual;
-            if      (distancia > 1000) zonaAtual = 0; // sem recomendação
-            else if (distancia > 500)  zonaAtual = 1; // alerta    — 70 km/h
-            else if (distancia > 200)  zonaAtual = 2; // aproximação — 50 km/h
-            else                       zonaAtual = 3; // crítica   — 30 km/h
+            if      (distancia > 500) zonaAtual = 1; // alerta      — 70 km/h
+            else if (distancia > 200) zonaAtual = 2; // aproximação — 50 km/h
+            else                      zonaAtual = 3; // crítica     — 30 km/h
 
             // Novo sorteio independente ao entrar numa zona mais próxima
             if (zonaAtual > zonaDecidida) {
