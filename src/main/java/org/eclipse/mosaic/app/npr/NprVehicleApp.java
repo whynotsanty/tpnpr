@@ -61,7 +61,11 @@ public class NprVehicleApp extends AbstractApplication<VehicleOperatingSystem> i
 
         // 1. O EVENTO É DO CAM? (O relógio chegou à hora de enviar CAM)
         if (tempoAtual >= proximoCamTempo) {
-            getOs().getAdHocModule().sendCam();
+            // Enviamos NprCamMessage com a velocidade atual para a RSU calcular velocidade média
+            double velocidadeAtual = getOs().getVehicleData().getSpeed();
+            org.eclipse.mosaic.lib.objects.v2x.MessageRouting camRouting =
+                    getOs().getAdHocModule().createMessageRouting().topoBroadCast(1);
+            getOs().getAdHocModule().sendV2xMessage(new NprCamMessage(camRouting, velocidadeAtual));
             proximoCamTempo = tempoAtual + INTERVALO_CAM;
             getOs().getEventManager().addEvent(proximoCamTempo, this);
         }
@@ -70,7 +74,7 @@ public class NprVehicleApp extends AbstractApplication<VehicleOperatingSystem> i
         if (aEsperaDeRetransmitir && tempoAtual >= tempoAgendadoParaRetransmitir) {
             // Se o alarme tocou e ninguém nos cancelou, passamos a mensagem para trás!
             org.eclipse.mosaic.lib.objects.v2x.MessageRouting routing = getOs().getAdHocModule().createMessageRouting().topoBroadCast(1);
-            NprDenmMessage msgRetransmitida = new NprDenmMessage(routing, mensagemGuardada.getVelocidadeRecomendada(), mensagemGuardada.getTempoExpiracao());
+            NprDenmMessage msgRetransmitida = new NprDenmMessage(routing, mensagemGuardada.getTempoExpiracao());
             
             getOs().getAdHocModule().sendV2xMessage(msgRetransmitida);
             
