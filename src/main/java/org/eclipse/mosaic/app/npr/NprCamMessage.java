@@ -8,16 +8,14 @@ public class NprCamMessage extends V2xMessage {
     private final double velocidade;
 
     public NprCamMessage(MessageRouting routing, double velocidade) {
-        // SOLUÇÃO: A classe V2xMessage exige o routing no construtor.
+        
         super(routing);
         this.velocidade = velocidade;
     }
-
     public double getVelocidade() { return velocidade; }
 
     @Override
     public EncodedPayload getPayload() {
-        // Usamos 50L (long) para o tamanho da mensagem
         return new EncodedPayload(50L);
     }
 }

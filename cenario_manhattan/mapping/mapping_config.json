@@ -1,0 +1,139 @@
+{
+  "config": {
+    "fixedOrder": true
+  },
+  "prototypes": [
+    {
+      "name": "Car",
+      "accel": 2.6,
+      "decel": 4.5,
+      "length": 5.0,
+      "maxSpeed": 70,
+      "minGap": 2.5,
+      "sigma": 0.5,
+      "speedDeviation": 0.1,
+      "tau": 1.0
+    }
+  ],
+  "vehicles": [
+    {
+      "startingTime": "1 s",
+      "targetFlow": 1800,
+      "maxNumberVehicles": 400,
+      "route": "main_west_east",
+      "lanes": [0],
+      "types": [
+        {
+          "name": "Car",
+          "weight": 100,
+          "applications": ["org.eclipse.mosaic.app.npr.NprVehicleApp"],
+          "adHoc": { "maxDistance": 140 }
+        }
+      ]
+    },
+    {
+      "startingTime": "1 s",
+      "targetFlow": 900,
+      "maxNumberVehicles": 300,
+      "route": "main_east_west",
+      "lanes": [0],
+      "types": [
+        {
+          "name": "Car",
+          "weight": 100,
+          "applications": ["org.eclipse.mosaic.app.npr.NprVehicleApp"],
+          "adHoc": { "maxDistance": 140 }
+        }
+      ]
+    },
+    {
+      "startingTime": "1 s",
+      "targetFlow": 1200,
+      "maxNumberVehicles": 400,
+      "route": "north_south_col1",
+      "lanes": [0],
+      "types": [
+        {
+          "name": "Car",
+          "weight": 100,
+          "applications": ["org.eclipse.mosaic.app.npr.NprVehicleApp"],
+          "adHoc": { "maxDistance": 140 }
+        }
+      ]
+    },
+    {
+      "startingTime": "1 s",
+      "targetFlow": 600,
+      "maxNumberVehicles": 200,
+      "route": "south_north_col1",
+      "lanes": [0],
+      "types": [
+        {
+          "name": "Car",
+          "weight": 100,
+          "applications": ["org.eclipse.mosaic.app.npr.NprVehicleApp"],
+          "adHoc": { "maxDistance": 140 }
+        }
+      ]
+    },
+    {
+      "startingTime": "1 s",
+      "targetFlow": 500,
+      "maxNumberVehicles": 150,
+      "route": "north_south_left",
+      "lanes": [0],
+      "types": [
+        {
+          "name": "Car",
+          "weight": 100,
+          "applications": ["org.eclipse.mosaic.app.npr.NprVehicleApp"],
+          "adHoc": { "maxDistance": 140 }
+        }
+      ]
+    },
+    {
+      "startingTime": "1 s",
+      "targetFlow": 500,
+      "maxNumberVehicles": 150,
+      "route": "south_north_left",
+      "lanes": [0],
+      "types": [
+        {
+          "name": "Car",
+          "weight": 100,
+          "applications": ["org.eclipse.mosaic.app.npr.NprVehicleApp"],
+          "adHoc": { "maxDistance": 140 }
+        }
+      ]
+    }
+  ],
+  "rsus": [
+    {
+      "name": "rsu_zona1",
+      "position": {
+        "latitude": 41.147874,
+        "longitude": -8.608078
+      },
+      "applications": ["org.eclipse.mosaic.app.npr.NprRsuApp"],
+      "adHoc": { "maxDistance": 140 }
+    },
+    {
+      "name": "rsu_zona2",
+      "position": {
+        "latitude": 41.147874,
+        "longitude": -8.596125
+      },
+      "applications": ["org.eclipse.mosaic.app.npr.NprRsuApp"],
+      "adHoc": { "maxDistance": 140 }
+    },
+    {
+      "name": "rsu_zona3",
+      "position": {
+        "latitude": 41.142484,
+        "longitude": -8.605072
+      },
+      "applications": ["org.eclipse.mosaic.app.npr.NprRsuApp"],
+      "adHoc": { "maxDistance": 140 }
+    }
+  ]
+}

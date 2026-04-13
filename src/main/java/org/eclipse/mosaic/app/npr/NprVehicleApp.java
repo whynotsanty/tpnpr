@@ -80,7 +80,7 @@ public class NprVehicleApp extends AbstractApplication<VehicleOperatingSystem> i
             
             aEsperaDeRetransmitir = false;
             jaRetransmitiu = true; // Só fazemos o papel de repetidor uma vez
-            System.out.println(String.format("📡 %-8s RETRANSMITIU o alerta para trás (Multi-Hop)!", getOs().getId()));
+            System.out.println(String.format("%-8s RETRANSMITIU o alerta para trás (Multi-Hop)!", getOs().getId()));
         }
     }
 
@@ -135,7 +135,6 @@ public class NprVehicleApp extends AbstractApplication<VehicleOperatingSystem> i
                 getOs().getEventManager().addEvent(tempoAgendadoParaRetransmitir, this);
             }
 
-            // --- SORTEIO POR ZONA ---
             // Determinar em que zona o veículo se encontra (3 zonas)
             int zonaAtual;
             if      (distancia > 500) zonaAtual = 1; // alerta      — 70 km/h

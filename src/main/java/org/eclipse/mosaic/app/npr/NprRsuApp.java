@@ -12,32 +12,28 @@ import org.eclipse.mosaic.lib.util.scheduling.Event;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Aplicação da RSU: Gere a densidade de tráfego e a velocidade média,
- * emitindo avisos DENM com Histerese quando detetado congestionamento.
- */
-public class NprRsuApp extends AbstractApplication<RoadSideUnitOperatingSystem> implements CommunicationApplication {
 
-    // --- CONFIGURAÇÃO DE HISTERESE ---
+public class NprRsuApp extends AbstractApplication<RoadSideUnitOperatingSystem> implements CommunicationApplication { 
+//A nossa classe herda uma classe base de aplicação e implementa a interface de comunicação para receber mensagens V2X
+
     private static final int LIMIAR_ALTO = 10; // Ativa o aviso se houver > 10 carros
     private static final int LIMIAR_BAIXO = 4; // Só desativa se baixar de 4 carros
     private boolean avisoAtivo = false;
 
-    // --- MEMÓRIA DE DENSIDADE E VELOCIDADE ---
-    // Guarda o último valor de velocidade recebido por cada veículo
+    // Mapa para armazenar a velocidade de cada veículo detetado (ID do veículo -> velocidade)
     private final Map<String, Double> velocidadesVeiculos = new HashMap<>();
 
     @Override
     public void onStartup() {
-        getOs().getAdHocModule().enable();
-        System.out.println("✅ RSU " + getOs().getId() + " online com Gestão Dinâmica!");
+        getOs().getAdHocModule().enable(); //Ligar antena AdHoc para receber mensagens dos veículos
+        System.out.println("RSU " + getOs().getId() + " online com Gestão Dinâmica!");
 
         getOs().getEventManager().addEvent(getOs().getSimulationTime() + 1000000000L, this);
     }
 
     @Override
     public void onMessageReceived(ReceivedV2xMessage receivedV2xMessage) {
-        // Só processa NprCamMessage — ignora DENMs retransmitidos por veículos
+        
         if (!(receivedV2xMessage.getMessage() instanceof NprCamMessage)) {
             return;
         }
@@ -60,18 +56,24 @@ public class NprRsuApp extends AbstractApplication<RoadSideUnitOperatingSystem> 
                     .orElse(0);
         }
 
-        // Lógica de Histerese
-        if (!avisoAtivo && densidadeAtual >= LIMIAR_ALTO) {
+        // Converte a média para km/h para ser mais fácil avaliar
+        double velMediaKmH = velMedia * 3.6;
+
+        // Lógica de Histerese Inteligente (Densidade + Velocidade)
+        // Só ativa se houver carros suficientes E o trânsito estiver lento (< 40 km/h)
+        if (!avisoAtivo && densidadeAtual >= LIMIAR_ALTO && velMediaKmH < 40.0) {
             avisoAtivo = true;
-            System.out.println(String.format("[ALERTA] Densidade ALTA (%d veíc | vel. média: %.1f km/h). Ativando restrições.",
-                    densidadeAtual, velMedia * 3.6));
-        } else if (avisoAtivo && densidadeAtual <= LIMIAR_BAIXO) {
+            System.out.println(String.format("[ALERTA] Trânsito detetado (%d veíc | vel. média: %.1f km/h). Ativando restrições.",
+                    densidadeAtual, velMediaKmH));
+        } 
+        // Só desativa se a estrada ficar vazia OU o trânsito voltar a fluir rápido (> 60 km/h)
+        else if (avisoAtivo && (densidadeAtual <= LIMIAR_BAIXO || velMediaKmH > 60.0)) {
             avisoAtivo = false;
-            System.out.println(String.format("[FLUXO] Densidade BAIXA (%d veíc | vel. média: %.1f km/h). Desativando restrições.",
-                    densidadeAtual, velMedia * 3.6));
+            System.out.println(String.format("[FLUXO] Trânsito regularizado (%d veíc | vel. média: %.1f km/h). Desativando restrições.",
+                    densidadeAtual, velMediaKmH));
         } else {
             System.out.println(String.format("[RSU] %d veíc | vel. média: %.1f km/h | aviso: %s",
-                    densidadeAtual, velMedia * 3.6, avisoAtivo ? "ATIVO" : "inativo"));
+                    densidadeAtual, velMediaKmH, avisoAtivo ? "ATIVO" : "inativo"));
         }
 
         if (avisoAtivo) {

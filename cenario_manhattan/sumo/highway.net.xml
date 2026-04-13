@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 02/03/21 09:55:49 by Eclipse SUMO netconvert Version 1.7.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <node-files value="C:\dev\rep\git\mosaic\eclipse-mosaic\bundle\src\assembly\resources\scenarios\Highway\application\Highway.nod.xml"/>
+        <edge-files value="C:\dev\rep\git\mosaic\eclipse-mosaic\bundle\src\assembly\resources\scenarios\Highway\application\Highway.edg.xml"/>
+        <connection-files value="C:\dev\rep\git\mosaic\eclipse-mosaic\bundle\src\assembly\resources\scenarios\Highway\application\Highway.con.xml"/>
+    </input>
+
+    <output>
+        <output-file value="C:\dev\rep\git\mosaic\eclipse-mosaic\bundle\src\assembly\resources\scenarios\Highway\application\Highway.net.xml"/>
+    </output>
+
+    <report>
+        <aggregate-warnings value="5"/>
+    </report>
+
+</configuration>
+-->
+
+<net version="1.6" junctionCornerDetail="5" limitTurnSpeed="5.50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+
+    <location netOffset="-32639.198,-55245.59" convBoundary="0.00,0.00,0.00,0.00" origBoundary="32639.198,55245.59,32639.198,55245.59" projParameter="+proj=utm +zone=29 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"/>
+
+ 
+
+</net>
