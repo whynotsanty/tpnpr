@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-04-18T02:32:39.927872+00:00 by Eclipse SUMO netedit 1.26.0
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- StoppingPlaces -->
+    <parkingArea id="pa_0" lane="-E0_0" startPos="438.37" endPos="448.37"/>
+    <parkingArea id="pa_1" lane="-E17_0" startPos="313.45" endPos="323.45"/>
+    <parkingArea id="pa_2" lane="E4_0" startPos="175.75" endPos="185.75"/>
+    <parkingArea id="pa_3" lane="E25_0" startPos="56.02" endPos="66.02"/>
+</additional>

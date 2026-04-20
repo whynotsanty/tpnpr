@@ -2,95 +2,12 @@
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
 
-    <vType id="car"
-           accel="2.6"
-           decel="4.5"
-           sigma="0.5"
-           length="5.0"
-           minGap="2.5"
-           maxSpeed="19.44"
-           guiShape="passenger"/>
+    <vType id="Car" accel="2.6" decel="4.5" sigma="0.5" length="5.0" minGap="2.5" maxSpeed="19.44" guiShape="passenger"/>
 
-    <!-- ============================================================
-         ZONAS DE OBRAS
-           Zona 1 — E0  (horizontal, J0->J1, x=0..500,   y=0)
-           Zona 2 — E2  (horizontal, J2->J3, x=1000..1500, y=0)
-           Zona 3 — E32 (vertical,   J1->J21, x=500, y=0..-1200)
-         Cada zona tem 1 RSU independente.
-         Em todas as edges afetadas: reduzir para 1 lane no netedit.
-         ============================================================ -->
+    <flow id="flow_zona1" type="Car" from="E0" to="E3" begin="0" end="3600" vehsPerHour="1000" departLane="best" departSpeed="max"/>
 
-    <!-- === CORREDOR HORIZONTAL PRINCIPAL (oeste -> este) ===
-         Atravessa Zona 1 (E0) e Zona 2 (E2).
-         E1 (J1->J2) é livre — serve de "respiro" entre os dois gargalos.  -->
-    <route id="main_west_east" edges="E0 E1 E2 E3"/>
-    <route id="main_east_west" edges="-E3 -E2 -E1 -E0"/>
+    <flow id="flow_zona2" type="Car" from="E17" to="E24" begin="0" end="3600" vehsPerHour="1000" departLane="best" departSpeed="max"/>
 
-    <!-- === CORREDOR VERTICAL (norte -> sul) ===
-         Atravessa Zona 3 (E32, J1->J21).
-         E32 tem 1185m — gargalo longo, simula obras extensas.           -->
-    <route id="north_south_col1" edges="E32"/>
-    <route id="south_north_col1" edges="-E32"/>
-
-    <!-- Coluna esquerda vertical (J0->J9->J10->J19->J20) — sem obras    -->
-    <route id="north_south_left" edges="E30 E9 E31 E19"/>
-    <route id="south_north_left" edges="-E19 -E31 -E9 -E30"/>
-
-    <!-- Coluna direita vertical (J4->J5->J14->J15->J24) — sem obras     -->
-    <route id="north_south_right" edges="E4 E25 E14 E24"/>
-    <route id="south_north_right" edges="-E24 -E14 -E25 -E4"/>
-
-    <!-- Rota longa horizontal + descida (para testar propagação multi-hop):
-         J0->J1->J2->J3 depois desce pela col x=1500                    -->
-    <route id="we_then_south" edges="E0 E1 E2 E29 E26 E27 E28"/>
-
-    <!-- ============================================================
-         FLOWS
-         main_west_east : 1800 veh/h — satura E0 e E2
-         main_east_west :  900 veh/h — sentido inverso
-         north_south_col1: 1200 veh/h — satura E32 (vertical longa)
-         south_north_col1:  600 veh/h — inverso E32
-         left/right cols :  500 veh/h cada — tráfego de fundo
-         ============================================================ -->
-
-    <flow id="flow_we"
-          type="car" route="main_west_east"
-          begin="0" end="3600" vehsPerHour="1800"
-          departLane="best" departSpeed="max"/>
-
-    <flow id="flow_ew"
-          type="car" route="main_east_west"
-          begin="0" end="3600" vehsPerHour="900"
-          departLane="best" departSpeed="max"/>
-
-    <flow id="flow_ns_col1"
-          type="car" route="north_south_col1"
-          begin="0" end="3600" vehsPerHour="1200"
-          departLane="best" departSpeed="max"/>
-
-    <flow id="flow_sn_col1"
-          type="car" route="south_north_col1"
-          begin="0" end="3600" vehsPerHour="600"
-          departLane="best" departSpeed="max"/>
-
-    <flow id="flow_ns_left"
-          type="car" route="north_south_left"
-          begin="0" end="3600" vehsPerHour="500"
-          departLane="best" departSpeed="max"/>
-
-    <flow id="flow_sn_left"
-          type="car" route="south_north_left"
-          begin="0" end="3600" vehsPerHour="500"
-          departLane="best" departSpeed="max"/>
-
-    <flow id="flow_ns_right"
-          type="car" route="north_south_right"
-          begin="0" end="3600" vehsPerHour="500"
-          departLane="best" departSpeed="max"/>
-
-    <flow id="flow_sn_right"
-          type="car" route="south_north_right"
-          begin="0" end="3600" vehsPerHour="500"
-          departLane="best" departSpeed="max"/>
+    <flow id="flow_zona3" type="Car" from="E4" to="E28" begin="0" end="3600" vehsPerHour="6000" departLane="best" departSpeed="max"/>
 
 </routes>
