@@ -4,7 +4,7 @@
 
     <input>
         <net-file value="manhattan.net.xml"/>
-        <route-files value="routes.rou.xml"/>
+        <route-files value="background.rou.xml"/>
         <additional-files value="simulation.add.xml"/>
     </input>
 

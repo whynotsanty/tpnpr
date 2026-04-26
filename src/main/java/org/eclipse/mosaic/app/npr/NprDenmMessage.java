@@ -5,7 +5,7 @@ import org.eclipse.mosaic.lib.objects.v2x.MessageRouting;
 import org.eclipse.mosaic.lib.objects.v2x.V2xMessage;
 
 public class NprDenmMessage extends V2xMessage {
-    private final long tempoExpiracao;
+    private final long tempoExpiracao; //TTL da mensagem
 
     public NprDenmMessage(MessageRouting routing, long tempoExpiracao) {
         super(routing);
@@ -16,7 +16,7 @@ public class NprDenmMessage extends V2xMessage {
 
     @Override
     public EncodedPayload getPayload() {
-        return new EncodedPayload(100, 800);
+        return new EncodedPayload(100, 800); // Simula um payload de 100 bytes, com um tempo de processamento mais longo (800 ms) para representar a complexidade do DENM
     }
 
     @Override

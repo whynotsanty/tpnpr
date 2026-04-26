@@ -7,6 +7,6 @@
     <!-- StoppingPlaces -->
     <parkingArea id="pa_0" lane="-E0_0" startPos="438.37" endPos="448.37"/>
     <parkingArea id="pa_1" lane="-E17_0" startPos="313.45" endPos="323.45"/>
-    <parkingArea id="pa_2" lane="E4_0" startPos="175.75" endPos="185.75"/>
+
     <parkingArea id="pa_3" lane="E25_0" startPos="56.02" endPos="66.02"/>
 </additional>

@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
 
     <vType id="Car" accel="2.6" decel="4.5" sigma="0.5" length="5.0" minGap="2.5" maxSpeed="19.44" guiShape="passenger"/>
 
-    <flow id="flow_zona1" type="Car" from="E0" to="E3" begin="0" end="3600" vehsPerHour="1000" departLane="best" departSpeed="max"/>
+    <flow id="flow_z1" type="Car" from="-E39" via="-E38" to="-E36" begin="0" end="3600" vehsPerHour="6000" departLane="best" departSpeed="max"/>
 
-    <flow id="flow_zona2" type="Car" from="E17" to="E24" begin="0" end="3600" vehsPerHour="1000" departLane="best" departSpeed="max"/>
+    <flow id="flow_z2" type="Car" from="-E18" via="-E17" to="-E15" begin="0" end="3600" vehsPerHour="6000" departLane="best" departSpeed="max"/>
 
-    <flow id="flow_zona3" type="Car" from="E4" to="E28" begin="0" end="3600" vehsPerHour="6000" departLane="best" departSpeed="max"/>
+    <flow id="flow_z3" type="Car" from="-E28" via="-E26" to="-E29" begin="0" end="3600" vehsPerHour="6000" departLane="best" departSpeed="max"/>
 
-</routes>
+    <flow id="fundo_noroeste_sudeste" type="Car" from="E0" to="E23" begin="0" end="3600" vehsPerHour="1000" departLane="best" departSpeed="max"/>
+
+    <flow id="fundo_nordeste_sudoeste" type="Car" from="-E3" to="E19" begin="0" end="3600" vehsPerHour="1000" departLane="best" departSpeed="max"/>
+
+    <flow id="fundo_sudoeste_nordeste" type="Car" from="E20" to="-E38" begin="0" end="3600" vehsPerHour="1000" departLane="best" departSpeed="max"/>
+
+    <flow id="fundo_sudeste_noroeste" type="Car" from="-E24" to="-E30" begin="0" end="3600" vehsPerHour="1000" departLane="best" departSpeed="max"/>
+</routes>   

@@ -28,7 +28,8 @@ public class NprRsuApp extends AbstractApplication<RoadSideUnitOperatingSystem> 
         getOs().getAdHocModule().enable(); //Ligar antena AdHoc para receber mensagens dos veículos
         System.out.println("RSU " + getOs().getId() + " online com Gestão Dinâmica!");
 
-        getOs().getEventManager().addEvent(getOs().getSimulationTime() + 1000000000L, this);
+        getOs().getEventManager().addEvent(getOs().getSimulationTime() + 1000000000L, this); 
+        // Mete um despertador para a cada 1 segundo avaliar o transito 
     }
 
     @Override
@@ -41,6 +42,7 @@ public class NprRsuApp extends AbstractApplication<RoadSideUnitOperatingSystem> 
         NprCamMessage cam = (NprCamMessage) receivedV2xMessage.getMessage();
         String vehicleId = cam.getRouting().getSource().getSourceName();
         velocidadesVeiculos.put(vehicleId, cam.getVelocidade());
+        // Guarda a velocidade do veículo que enviou o CAM. A cada 1 segundo, o processoEvent irá calcular a velocidade média e tomar decisões com base nisso.
     }
 
     @Override
@@ -56,20 +58,20 @@ public class NprRsuApp extends AbstractApplication<RoadSideUnitOperatingSystem> 
                     .orElse(0);
         }
 
-        // Converte a média para km/h para ser mais fácil avaliar
+        // Converte a média para km/h
         double velMediaKmH = velMedia * 3.6;
 
-        // Lógica de Histerese Inteligente (Densidade + Velocidade)
-        // Só ativa se houver carros suficientes E o trânsito estiver lento (< 40 km/h)
+        // Lógica de Histerese
+        // Só ativa se houver carros suficientes e o trânsito estiver lento (< 40 km/h)
         if (!avisoAtivo && densidadeAtual >= LIMIAR_ALTO && velMediaKmH < 40.0) {
             avisoAtivo = true;
-            System.out.println(String.format("[ALERTA] Trânsito detetado (%d veíc | vel. média: %.1f km/h). Ativando restrições.",
+            System.out.println(String.format("[ALERTA] Trânsito detetado (%d veíc | vel. média: %.1f km/h). A ativar restrições.",
                     densidadeAtual, velMediaKmH));
         } 
-        // Só desativa se a estrada ficar vazia OU o trânsito voltar a fluir rápido (> 60 km/h)
+        // Só desativa se a estrada ficar vazia ou o trânsito voltar a fluir rápido (> 60 km/h)
         else if (avisoAtivo && (densidadeAtual <= LIMIAR_BAIXO || velMediaKmH > 60.0)) {
             avisoAtivo = false;
-            System.out.println(String.format("[FLUXO] Trânsito regularizado (%d veíc | vel. média: %.1f km/h). Desativando restrições.",
+            System.out.println(String.format("[FLUXO] Trânsito regularizado (%d veíc | vel. média: %.1f km/h). A desativar restrições.",
                     densidadeAtual, velMediaKmH));
         } else {
             System.out.println(String.format("[RSU] %d veíc | vel. média: %.1f km/h | aviso: %s",
@@ -89,9 +91,9 @@ public class NprRsuApp extends AbstractApplication<RoadSideUnitOperatingSystem> 
         try {
             org.eclipse.mosaic.lib.objects.v2x.MessageRouting routing = getOs().getAdHocModule()
                     .createMessageRouting()
-                    .topoBroadCast(1);
+                    .topoBroadCast(1); // Enviar apenas para veículos na zona de cobertura direta da RSU
 
-            long tempoDeValidade = getOs().getSimulationTime() + 5000000000L;
+            long tempoDeValidade = getOs().getSimulationTime() + 5000000000L; // TTL de 5 segundos
             NprDenmMessage aviso = new NprDenmMessage(routing, tempoDeValidade);
             getOs().getAdHocModule().sendV2xMessage(aviso);
 
